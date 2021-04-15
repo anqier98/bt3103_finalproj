@@ -5,6 +5,7 @@
             <div class = "header__text">
                 <h1> Leaderboard </h1>
                 <p><i> Save more plastic to climb up the leaderboard! </i></p>
+                {{this.userid}}
                 <!--<p>#BYO #ZeroWasteNation </p>-->
             </div>
         </div>
@@ -49,18 +50,23 @@
 
 <script>
 import database from '../firebase.js'
+import firebase from '../firebase.js'
 
 export default {
     data() {
         return {
             sg: [],
             friends: [],
-            friends_username: []
+            friends_username: [],
+            userid: ""
         }
     },
     methods: {
         fetchData: function() {
-            database.collection('users').doc('1').get().then(snapshot => {
+            const user = firebase.currentUser;
+            if (user) {
+            this.userid = firebase.auth().currentUser.uid;
+            database.collection('users').doc(user.uid).get().then(snapshot => {
                 this.friends_username = snapshot.data().list_friend;
                 //console.log(this.friends_username);
                 //console.log(this.friends_username.length);
@@ -74,7 +80,8 @@ export default {
                     }) 
                     });
                 }
-                });
+                })
+            }
 
             database.collection('users').get().then(snapshot => {
                 snapshot.docs.forEach(doc => {
@@ -84,12 +91,29 @@ export default {
                 })
             });
         },
+        louUserData() {
+            const user = firebase.currentUser;
+            if (user) {
+                this.login = true;
+                const uid = user.uid;
+                console.log("userid " + uid);
+                database
+                .collection('users')
+                .doc(uid)
+                .get()
+                .then((doc) => {
+                    this.userData = doc.data();
+                    this.userData.id = doc.id;
+                });
+            }
+        },
         sortArrays: function(arrays) {
             return arrays.sort((a, b) => b.total_plastic - a.total_plastic).slice(0, 10);
         }
     },
-    mounted() {
+    created() {
         this.fetchData()
+        this.loadUserData();
     }
 }
 </script>

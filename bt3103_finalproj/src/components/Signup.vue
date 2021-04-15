@@ -122,6 +122,7 @@ export default {
                 firebase.firestore().collection("users").doc(uid).set({
                   email: this.form.email,
                   friends: 0,
+                  list_friend: [],
                   password: this.password,
                   phone: this.form.phone,
                   points: 0,
@@ -176,6 +177,7 @@ html, body {
 img {
   padding-left: 200px;
   height: 800px;
+  padding-top: 100px
 }
 
 body {
